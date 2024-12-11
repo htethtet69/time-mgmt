@@ -1,0 +1,85 @@
+// User-Friendly Time Management App with React
+
+import React, { useState, useEffect } from "react";
+import "./App.css"; // Create an App.css file for styling
+
+const schedule = [
+  { time: "9:00 AM - 11:00 AM", task: "High-Energy, High-Focus Work" },
+  { time: "11:00 AM - 11:15 AM", task: "Short Break" },
+  { time: "11:15 AM - 12:00 PM", task: "Medium-Priority Work" },
+  { time: "12:00 PM - 1:00 PM", task: "Lunch Break" },
+  { time: "1:00 PM - 3:00 PM", task: "Collaborative or Moderate Work" },
+  { time: "3:00 PM - 3:15 PM", task: "Mid-Afternoon Break" },
+  { time: "3:15 PM - 5:30 PM", task: "Low-Energy, Routine Work" },
+  { time: "5:30 PM - 6:00 PM", task: "Wind-Down & Planning" },
+  { time: "6:00 PM - 7:30 PM", task: "Transportation Time" },
+  { time: "7:30 PM - 9:00 PM", task: "Recharge & Unwind" },
+  { time: "9:00 PM - 10:30 PM", task: "Passion Project Focus" },
+  { time: "10:30 PM", task: "Wind Down for Sleep" },
+];
+
+function App() {
+  const [currentTask, setCurrentTask] = useState("");
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTask(getCurrentTask());
+    }, 60000); // Update every minute
+
+    // Set the initial task
+    setCurrentTask(getCurrentTask());
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const getCurrentTask = () => {
+    const now = new Date();
+    for (let slot of schedule) {
+      const [start, end] = slot.time.split(" - ");
+      const startTime = parseTime(start);
+      const endTime = end ? parseTime(end) : parseTime(start);
+
+      if (now >= startTime && now <= endTime) {
+        return slot.task;
+      }
+    }
+    return "No tasks scheduled at the moment.";
+  };
+
+  const parseTime = (timeString) => {
+    const [time, modifier] = timeString.split(" ");
+    const [hours, minutes] = time.split(":").map(Number);
+    let parsedHours = modifier === "PM" && hours !== 12 ? hours + 12 : hours;
+    if (modifier === "AM" && hours === 12) parsedHours = 0;
+    return new Date().setHours(parsedHours, minutes || 0, 0, 0);
+  };
+
+  return (
+    <div className="app-container">
+      <header className="app-header">
+        <h1>Time Management App</h1>
+      </header>
+      <main>
+        <section className="current-task">
+          <h2>Current Task</h2>
+          <p>{currentTask}</p>
+        </section>
+        <section className="schedule-list">
+          <h2>Daily Schedule</h2>
+          <ul>
+            {schedule.map((slot, index) => (
+              <li key={index} className="schedule-item">
+                <strong>{slot.time}</strong>: {slot.task}
+              </li>
+            ))}
+          </ul>
+        </section>
+      </main>
+      <footer className="app-footer">
+        <p>Time Management App © 2024</p>
+      </footer>
+    </div>
+  );
+}
+
+export default App;
